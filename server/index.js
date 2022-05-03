@@ -11,37 +11,31 @@ const {bytesToHex} = require('@noble/hashes/utils');
 app.use(cors());
 app.use(express.json());
 
-// Create pri:pub key pairs
-let privateKey1 = secp.utils.randomPrivateKey();
-let privateKey2 = secp.utils.randomPrivateKey();
-let privateKey3 = secp.utils.randomPrivateKey();
-let publicKey1 = secp.getPublicKey(privateKey1);
-let publicKey2 = secp.getPublicKey(privateKey2);
-let publicKey3 = secp.getPublicKey(privateKey3);
+// Generate account storage
+const privateKeys = [];
+const balances = [100, 50, 75];
+const publicKeys = [];
 
-// Convert to Ethereum addresses
-privateKey1 = '0x' + Buffer.from(privateKey1).toString('hex');
-privateKey2 = '0x' + Buffer.from(privateKey2).toString('hex');
-privateKey3 = '0x' + Buffer.from(privateKey3).toString('hex');
-publicKey1 = '0x' + Buffer.from(publicKey1).toString('hex').slice(-40);
-publicKey2 = '0x' + Buffer.from(publicKey2).toString('hex').slice(-40);
-publicKey3 = '0x' + Buffer.from(publicKey3).toString('hex').slice(-40);
+// Start log
+console.log("Available Accounts\n" + "====================");
 
-const balances = {
-  [publicKey1]: 100,
-  [publicKey2]: 50,
-  [publicKey3]: 75,
+for (let i = 0; i < balances.length; i++) {
+
+  // Generare pub:priv key pairs
+  const privateKey = secp.utils.randomPrivateKey();
+  const publicKey = secp.getPublicKey(privateKey);
+
+  // Store key pairs
+  privateKeys[i] = privateKey;
+  publicKeys[i] = publicKey;
+
+  // Continue log
+  console.log(`${Buffer.from(privateKey).toString('hex')}`);
+  console.log(`${Buffer.from(publicKey).toString('hex')}`);
+  // console.log(`0x${Buffer.from(privateKey).toString('hex')}`);
+  // console.log(`0x${Buffer.from(publicKey).toString('hex').slice(-40)}`);
+  console.log(`Balance: ${balances[i]}`);
 }
-
-// Logging accounts
-console.log('Available Accounts');
-console.log('==================');
-console.log(JSON.parse(JSON.stringify(balances)));
-console.log('Private Keys');
-console.log('==================');
-console.log(privateKey1);
-console.log(privateKey2);
-console.log(privateKey3);
 
 app.get('/balance/:address', (req, res) => {
   const {address} = req.params;
